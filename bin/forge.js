@@ -187,7 +187,9 @@ Forge.prototype = {
 
     // output errors to console
     data.errors.forEach(function (error) {
-      console.log(self.fileName + ':' + error.line + ':' + error.character + ' ' + error.reason);
+      if (error) {
+        console.log(self.fileName + ':' + error.line + ':' + error.character + ' ' + error.reason);
+      }
     });
   },
 
