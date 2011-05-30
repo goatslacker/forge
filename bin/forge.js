@@ -75,19 +75,49 @@ const config = (function () {
 }());
 
 // Other requires from options given
-var jshint = config.lint ? require("jshint").JSHINT : null,
-    uglify = config.compress ? require("uglify-js") : null,
-    gzip = config.gzip ? require("gzip") : null,
-    less = config.less ? require("less") : null;
+
+var Forge = function (file) {
+  this.fileName = file;
+},
+
+requireModule = function (module) {
+  var requirement = null;
+
+  try {
+    requirement = require(module);
+  } catch (e) {
+    if (!config.quiet) {
+      console.log(module + " is not installed. Try npm install " + module + " -g\n");
+    }
+  }
+
+  return requirement;
+},
+
+jshint = null,
+uglify = null,
+gzip = null,
+less = null;
+
+if (config.lint) {
+  jshint = requireModule("jshint");
+}
+
+if (config.compress) {
+  uglify = requireModule("uglify-js");
+}
+
+if (config.gzip) {
+  gzip = requireModule("gzip")
+}
+
+if (config.less) {
+  less = requireModule("less");
+}
 // TODO jsdocs
 // node module doesn't exist :(
 
 // Forge Object
-
-var Forge = function (file) {
-  this.fileName = file;
-};
-
 Forge.prototype = {
 
   forge: function (files, ext) {
@@ -159,6 +189,8 @@ Forge.prototype = {
   jshint: function (code) {
     const log = (!config.quiet);
 
+    const lint = jshint.JSHINT;
+
     var data = "",
         self = this;
 
@@ -167,10 +199,10 @@ Forge.prototype = {
     }
 
     // run jshint on the code
-    jshint(code);
+    lint(code);
 
     // get data
-    data = jshint.data();
+    data = lint.data();
 
     // if there are no errors
     if (!data.errors) {
