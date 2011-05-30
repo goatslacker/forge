@@ -7,9 +7,16 @@
   @depends jshint, uglify, gzip, less
   */
 
+const loadDefaults = function (obj, fallback) {
+  Object.keys(fallback).forEach(function (key) {
+    obj[key] = (typeof obj[key] === "undefined") ? fallback[key] : obj[key];
+  });
+
+  return obj;
+};
+
 const args = (function (argv) {
-  var obj = {},
-      fallback = { js: 'src' };
+  var obj = {};
 
   argv.forEach(function (item) {
     if (item.indexOf("--") !== -1) {
@@ -17,11 +24,7 @@ const args = (function (argv) {
     }
   });
 
-  Object.keys(fallback).forEach(function (key) {
-    obj[key] = (typeof obj[key] === "undefined") ? fallback[key] : obj[key];
-  });
-
-  return obj;
+  return loadDefaults(obj, { js: 'src' });
 }(process.argv.splice(2)));
 
 // Requires
@@ -30,8 +33,14 @@ const fs = require("fs");
 // Forge Settings
 // pulled from forge.json if it exists, otherwise uses default settings
 const config = (function () {
+  var options = {};
 
-  var fallback = {
+  try {
+    options = JSON.parse(fs.readFileSync("forge.json"));
+  } catch (e) {
+  }
+
+  return loadDefaults(options, {
     /* appName = the directory name */
     appName: (function () {
       var real = fs.realpathSync("."),
@@ -57,21 +66,7 @@ const config = (function () {
 
     /* no logging for Forge */
     quiet: false
-  },
-
-  options = {};
-
-  try {
-    options = JSON.parse(fs.readFileSync("forge.json"));
-  } catch (e) {
-  }
-
-  // default settings
-  Object.keys(fallback).forEach(function (key) {
-    options[key] = (typeof options[key] === "undefined") ? fallback[key] : options[key];
   });
-
-  return options;
 }());
 
 // Other requires from options given
@@ -307,9 +302,7 @@ Forge.getBuildFile = function (ext) {
   }
 
   // do forge
-  Object.keys(files).forEach(function (ext) {
-    doForge(ext);
-  });
+  Object.keys(files).forEach(doForge);
 
   // Done :)
   if (log) {
