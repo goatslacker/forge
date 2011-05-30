@@ -88,7 +88,7 @@ Forge.prototype = {
 
     // loop through each file in the directory
     files.forEach(function (fileName) {
-      var file = fileName + '.' + ext;
+      var file = (("." + ext).indexOf(fileName) === -1) ? fileName : fileName + '.' + ext;
 
       if (log) {
         console.log('> ./' + file);
@@ -198,7 +198,42 @@ Forge.getBuildFile = function (ext) {
 (function () {
   const log = (!config.quiet);
 
-  var path = args[0] || ".";
+  var files = config.files ? config.files : (function () {
+    var path = args[0] || "src",
+        src = fs.readdirSync(path),
+        js = [];
+
+    src.forEach(function (file) {
+      js.push(path + "/" + file);
+    });
+
+    return { js: js };
+  }()),
+  
+  doForge = function (ext) {
+    var buildFile = Forge.getBuildFile(ext),
+
+        // create new forging object
+        forger = new Forge(buildFile),
+
+        // the code in all it's glory
+        code = forger.forge(files[ext], ext);
+
+    // jshint
+    if (jshint) {
+      forger.jshint(code);
+    }
+
+    // compress code
+    if (uglify) {
+      forger.compress(code);
+    }   
+
+    // gzip
+    if (gzip) {
+      forger.gzip();
+    }
+  };
 
   if (log) {
     console.log('Forging ' + config.appName);
@@ -211,44 +246,10 @@ Forge.getBuildFile = function (ext) {
     // may return a file exists error...
   }
 
-  // config file was set...
-  if (config.files) {
-    Object.keys(config.files).forEach(function (ext) {
-
-      var buildFile = Forge.getBuildFile(ext),
-
-          // create new forging object
-          forger = new Forge(buildFile),
-
-          // the code in all it's glory
-          code = forger.forge(config.files[ext], ext);
-
-      // jshint
-      if (jshint) {
-        forger.jshint(code);
-      }
-
-      // compress code
-      if (uglify) {
-        forger.compress(code);
-      }   
-
-      // gzip
-      if (gzip) {
-        forger.gzip();
-      }
-
-    });
-  } else {
-  // automatically do it...
-    fs.readdir(path, function (err, files) {
-
-      files.forEach(function (file) {
-        console.log(file);
-      });
-
-    });
-  }
+  // do forge
+  Object.keys(files).forEach(function (ext) {
+    doForge(ext);
+  });
 
   // Done :)
   if (log) {
