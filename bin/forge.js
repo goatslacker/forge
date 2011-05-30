@@ -7,14 +7,23 @@
   @depends jshint, uglify, gzip, less
   */
 
-const loadDefaults = function (obj, fallback) {
-  Object.keys(fallback).forEach(function (key) {
-    obj[key] = (typeof obj[key] === "undefined") ? fallback[key] : obj[key];
+/**
+  If property isn't set, it sets the default value
+  @param obj {Object} the base object
+  @param defaults {Object} the object with the default values
+  @return {Object}
+  */
+const fallback = function (obj, defaults) {
+  Object.keys(defaults).forEach(function (key) {
+    obj[key] = (typeof obj[key] === "undefined") ? defaults[key] : obj[key];
   });
 
   return obj;
 };
 
+/**
+  App arguments
+  */
 const args = (function (argv) {
   var obj = {};
 
@@ -24,14 +33,16 @@ const args = (function (argv) {
     }
   });
 
-  return loadDefaults(obj, { js: 'src' });
+  return fallback(obj, { js: 'src' });
 }(process.argv.splice(2)));
 
 // Requires
 const fs = require("fs");
 
-// Forge Settings
-// pulled from forge.json if it exists, otherwise uses default settings
+/**
+  Forge Settings
+  pulled from forge.json if it exists, otherwise uses default settings
+  */
 const config = (function () {
   var options = {};
 
@@ -40,7 +51,7 @@ const config = (function () {
   } catch (e) {
   }
 
-  return loadDefaults(options, {
+  return fallback(options, {
     /* appName = the directory name */
     appName: (function () {
       var real = fs.realpathSync("."),
@@ -69,12 +80,16 @@ const config = (function () {
   });
 }());
 
-// Other requires from options given
-
+/**
+  Forges a file
+  */
 var Forge = function (file) {
   this.fileName = file;
 },
 
+/**
+  Tries to load a module, throws a non fatal error if not found
+  */
 requireModule = function (module) {
   var requirement = null;
 
@@ -243,10 +258,13 @@ Forge.getBuildFile = function (ext) {
   return config.buildDirectory + "/" + config.appName + "." + ext;
 };
 
-/** */
+/** Application */
 (function () {
   const log = (!config.quiet);
 
+  /**
+    @return {Array} files that need to be forged
+    */
   var files = config.files ? config.files : (function () {
     var obj = {};
 
@@ -265,6 +283,9 @@ Forge.getBuildFile = function (ext) {
     return obj;
   }()),
   
+  /**
+    Forging logic
+    */
   doForge = function (ext) {
     var buildFile = Forge.getBuildFile(ext),
 
