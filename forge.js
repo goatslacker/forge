@@ -7,7 +7,22 @@
   @depends jshint, uglify, gzip, less
   */
 
-const args = process.argv.splice(2);
+const args = (function (argv) {
+  var obj = {},
+      fallback = { js: 'src' };
+
+  argv.forEach(function (item) {
+    if (item.indexOf("--") !== -1) {
+      obj[item.replace("--", "")] = argv.pop();   
+    }
+  });
+
+  Object.keys(fallback).forEach(function (key) {
+    obj[key] = (typeof obj[key] === "undefined") ? fallback[key] : obj[key];
+  });
+
+  return obj;
+}(process.argv.splice(2)));
 
 // Requires
 const fs = require("fs");
@@ -88,7 +103,7 @@ Forge.prototype = {
 
     // loop through each file in the directory
     files.forEach(function (fileName) {
-      var file = (("." + ext).indexOf(fileName) === -1) ? fileName : fileName + '.' + ext;
+      var file = fileName + '.' + ext;
 
       if (log) {
         console.log('> ./' + file);
@@ -199,15 +214,21 @@ Forge.getBuildFile = function (ext) {
   const log = (!config.quiet);
 
   var files = config.files ? config.files : (function () {
-    var path = args[0] || "src",
-        src = fs.readdirSync(path),
-        js = [];
+    var obj = {};
 
-    src.forEach(function (file) {
-      js.push(path + "/" + file);
+    Object.keys(args).forEach(function (ext) {
+      var src = [];
+
+      fs.readdirSync(args[ext]).forEach(function (file) {
+        if (file.indexOf("." + ext) !== -1) {
+          src.push(args[ext] + "/" + file.replace("." + ext, ""));
+        }
+      });
+
+      obj[ext] = src;
     });
 
-    return { js: js };
+    return obj;
   }()),
   
   doForge = function (ext) {
