@@ -87,7 +87,7 @@ requireModule = function (module) {
     requirement = require(module);
   } catch (e) {
     if (!config.quiet) {
-      console.log(module + " is not installed. Try npm install " + module + " -g\n");
+      console.error(module + " is not installed. Try npm install " + module + " -g\n");
     }
   }
 
