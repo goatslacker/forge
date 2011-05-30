@@ -1,4 +1,4 @@
-# forge - An easy to use CLI tool for compiling projects
+# forge - An easy to use CLI tool written in NodeJS useful for compiling JavaScript projects
 
 ## Installing
 

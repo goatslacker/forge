@@ -8,8 +8,7 @@
 all: install
 
 install:
-	@cp ./bin/forge.js /usr/local/bin/forge && \
-		chmod 755 /usr/local/bin/forge && \
+	@npm install -g && \
 		echo 'forge installed.'
 
 clean:

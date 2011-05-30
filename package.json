@@ -1,15 +1,34 @@
 {
   "name": "forge",
+  "author": "Josh Perez <josh@goatslacker.com>",
   "version": "1.0.0",
   "description": "An easy to use CLI tool for compiling projects",
+
+  "keywords": [
+    "build",
+    "compile",
+    "compress"
+  ],
+
   "repository": {
     "type": "git",
     "url": "https://github.com/goatslacker/forge.git"
   },
-  "author": "Josh Perez <josh@goatslacker.com>",
+
   "licenses": ["MIT"],
-  "dependencies": ["jshint", "uglify-js", "gzip", "less"],
+
+  "dependencies": {
+    "jshint": "0.2.x", 
+    "uglify-js": "1.0.x",
+    "gzip": "0.1.x",
+    "less": "1.1.x"
+  },
+
   "bin": { 
-    "arcane": "./bin/forge.js"
+    "forge": "./bin/forge.js"
+  },
+
+  "engines": {
+    "node": ">= 0.4.0"
   }
 }
