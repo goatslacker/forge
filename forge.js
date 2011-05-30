@@ -159,7 +159,8 @@ Forge.prototype = {
   jshint: function (code) {
     const log = (!config.quiet);
 
-    var data = "";
+    var data = "",
+        self = this;
 
     if (log) {
       console.log('\nValidating ./' + this.fileName + ' with jshint');
@@ -180,9 +181,13 @@ Forge.prototype = {
       return;
     }
 
+    if (log) {
+      console.log('\nErrors found in ' + this.fileName);
+    }
+
     // output errors to console
     data.errors.forEach(function (error) {
-      console.log(error.evidence + ':' + error.line + ':' + error.character + ' ' + error.raw);
+      console.log(self.fileName + ':' + error.line + ':' + error.character + ' ' + error.reason);
     });
   },
 
