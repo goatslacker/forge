@@ -2,7 +2,7 @@
 
 ## Installing
 
-* Unix/Linux
+Unix/Linux
 
     git clone git://github.com/goatslacker/forge.git
     cd forge
@@ -10,17 +10,17 @@
 
 ## How to use
 
-1. Automatically detects directories
+Automatically detects directories
 
     cd myproject
     forge
 
-2. You tell forge the directory
+You tell forge the directory
 
     cd myproject
     forge --js source
 
-3. Config file `forge.json`
+Config file `forge.json`
 
     {
       "files": {
