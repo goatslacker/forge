@@ -61,21 +61,60 @@ const config = (function () {
 
 // Other requires from options given
 var jshint = config.lint ? require("jshint").JSHINT : null,
-    uglify = config.comress ? require("uglify-js") : null,
+    uglify = config.compress ? require("uglify-js") : null,
     gzip = config.gzip ? require("gzip") : null,
     less = config.less ? require("less") : null;
 // TODO jsdocs
 // node module doesn't exist :(
 
 // Forge Object
-const Forge = {
 
-  make: function () {
+var Forge = function (file) {
+  this.fileName = file;
+};
+
+Forge.prototype = {
+
+  forge: function (files, ext) {
+    const log = (!config.quiet);
+
+    var code = "";
+
+    if (log) {
+      console.log('\nReading...');
+    }
+
+    ext = ext || 'js';
+
+    // loop through each file in the directory
+    files.forEach(function (fileName) {
+      var file = fileName + '.' + ext;
+
+      if (log) {
+        console.log('> ./' + file);
+      }
+
+      // read the contents of the files
+      code = code + fs.readFileSync(file, 'utf8');
+    });
+
+    // write output file
+    fs.writeFileSync(this.fileName, code);
+
+    if (log) {
+      console.log('Wrote to: ./' + this.fileName);
+    }
+
+    return code;
   },
 
   compress: function (code) {
+    this.minFile = Forge.getBuildFile("min.js");
+
     const jsp = uglify.parser;
     const pro = uglify.uglify;
+
+    const log = (!config.quiet);
 
     var parsed = "",
         mangled = "",
@@ -91,17 +130,33 @@ const Forge = {
       // if there's any errors
     }
 
-    return compressed;
+    if (log) {
+      console.log('\nCompressing ./' + this.fileName + ' using uglify-js');
+    }
+
+    fs.writeFileSync(this.minFile, compressed);
+
+    if (log) {
+      console.log('Compressed into ./' + this.minFile);
+    }
   },
 
-  getBuildFile: function (ext) {
-    return config.buildDirectory + "/" + config.appName + "." + ext;
-  },
+  jshint: function (code) {
+    const log = (!config.quiet);
 
-  jshint: function (data) {
+    var data = "";
 
-    var log = (!config.quiet);
+    if (log) {
+      console.log('\nValidating ./' + this.fileName + ' with jshint');
+    }
 
+    // run jshint on the code
+    jshint(code);
+
+    // get data
+    data = jshint.data();
+
+    // if there are no errors
     if (!data.errors) {
       if (log) {
         console.log('Lint Free!');
@@ -110,43 +165,40 @@ const Forge = {
       return;
     }
 
+    // output errors to console
     data.errors.forEach(function (error) {
       console.log(error.evidence + ':' + error.line + ':' + error.character + ' ' + error.raw);
     });
+  },
+
+  gzip: function () {
+    this.gzipFile = Forge.getBuildFile("js.gz");
+
+    const log = (!config.quiet);
+
+    if (log) {
+      console.log('\nApplying gzip compression');
+    }
+
+    var self = this,
+        file = this.minFile || this.fileName,
+        code = fs.readFileSync(file);
+
+    gzip(code, function (err, data) {
+      fs.writeFileSync(self.gzipFile, data);
+    });
   }
 };
 
-
-
-
-// tmp
-// custom settings
-config.files = {
-  src: ['snake.js', 'base.js', 'vql.js', 'web.db.js'] // || src/, stylesheets/
+Forge.getBuildFile = function (ext) {
+  return config.buildDirectory + "/" + config.appName + "." + ext;
 };
-
 
 /** */
 (function () {
+  const log = (!config.quiet);
 
-  var path = args[0] || ".",
-      log = (!config.quiet);
-
-
-  if (config.files) {
-//    Forge.make(config.files);
-  } else {
-  }
-
-  // automatically do it...
-/*
-  fs.readdir(path, function (err, files) {
-
-    files.forEach(function (file) {
-    });
-
-  });
-*/
+  var path = args[0] || ".";
 
   if (log) {
     console.log('Forging ' + config.appName);
@@ -154,83 +206,51 @@ config.files = {
 
   // create build directory
   try {
-    fs.mkdirSync(config.buildDirectory, 0666);
+    fs.mkdirSync(config.buildDirectory, 0777);
   } catch (e) {
     // may return a file exists error...
   }
 
   // config file was set...
+  if (config.files) {
+    Object.keys(config.files).forEach(function (ext) {
 
-  // loop through each directory
-  Object.keys(config.files).forEach(function (dir) {
+      var buildFile = Forge.getBuildFile(ext),
 
-    var code = "",
-        
-    // TODO determine proper extension
-        buildFile = Forge.getBuildFile("js");
+          // create new forging object
+          forger = new Forge(buildFile),
 
-    if (log) {
-      console.log('\nReading...');
-    }
+          // the code in all it's glory
+          code = forger.forge(config.files[ext], ext);
 
-    // loop through each file in the directory
-    config.files[dir].forEach(function (fileName) {
-
-      if (log) {
-        console.log('> ' + fileName);
+      // jshint
+      if (jshint) {
+        forger.jshint(code);
       }
 
-      var file = dir + "/" + fileName;
+      // compress code
+      if (uglify) {
+        forger.compress(code);
+      }   
 
-      // read the contents of the files
-      code = code + fs.readFileSync(file, 'utf8');
+      // gzip
+      if (gzip) {
+        forger.gzip();
+      }
+
     });
+  } else {
+  // automatically do it...
+    fs.readdir(path, function (err, files) {
 
-    // write output file
-    fs.writeFileSync(buildFile, code);
-
-    if (log) {
-      console.log('Wrote to: ' + buildFile);
-    }
-
-    // jshint
-    if (jshint) {
-      if (log) {
-        console.log('\nValidating ' + buildFile + ' with jshint');
-      }
-
-      jshint(code);
-      Forge.jshint(jshint.data());
-    }
-
-    // compress code
-    if (uglify) {
-      if (log) {
-        console.log('\nCompressing ' + buildFile + ' using uglify-js');
-      }
-
-      fs.writeFileSync(Forge.getBuildFile("min.js"), Forge.compress(code));
-    }   
-
-    if (log) {
-      console.log('Compressed into ' + Forge.getBuildFile('min.js'));
-    }
-
-    // gzip
-    if (gzip) {
-/*
-      if (log) {
-        console.log('\nApplying gzip compression');
-      }
-
-      gzip(compressed, function (err, data) {
-        fs.writeFileSync(Forge.getBuildFile("js.gz"), data);
+      files.forEach(function (file) {
+        console.log(file);
       });
-*/
-    }
 
-  });
+    });
+  }
 
+  // Done :)
   if (log) {
     console.log('\nDone!');
   }
