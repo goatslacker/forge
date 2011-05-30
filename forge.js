@@ -60,39 +60,38 @@ const config = (function () {
 }());
 
 // Other requires from options given
-var jshint = null,
-    jsp = null,
-    pro = null,
-    gzip = null,
-    less = null;
+var jshint = config.lint ? require("jshint").JSHINT : null,
+    uglify = config.comress ? require("uglify-js") : null,
+    gzip = config.gzip ? require("gzip") : null,
+    less = config.less ? require("less") : null;
 // TODO jsdocs
 // node module doesn't exist :(
-
-if (config.lint) {
-  /* lint */
-  jshint = require("jshint").JSHINT;
-}
-
-if (config.compress) {
-  /* compression */
-  jsp = require("uglify-js").parser;
-  pro = require("uglify-js").uglify;
-}
-
-if (config.gzip) {
-  /* gzip */
-  gzip = require("gzip");
-}
-
-if (config.less) {
-  /* less */
-  less = require("less");
-}
 
 // Forge Object
 const Forge = {
 
   make: function () {
+  },
+
+  compress: function (code) {
+    const jsp = uglify.parser;
+    const pro = uglify.uglify;
+
+    var parsed = "",
+        mangled = "",
+        squeeze = "",
+        compressed = "";
+
+    try {
+      parsed = jsp.parse(code);
+      mangled = pro.ast_mangle(parsed);
+      squeeze = pro.ast_squeeze(mangled);
+      compressed = pro.gen_code(squeeze);
+    } catch (e) {
+      // if there's any errors
+    }
+
+    return compressed;
   },
 
   getBuildFile: function (ext) {
@@ -195,36 +194,41 @@ config.files = {
     }
 
     // jshint
-    if (log) {
-      console.log('\nValidating ' + buildFile + ' with jshint');
+    if (jshint) {
+      if (log) {
+        console.log('\nValidating ' + buildFile + ' with jshint');
+      }
+
+      jshint(code);
+      Forge.jshint(jshint.data());
     }
 
-    jshint(code);
-    Forge.jshint(jshint.data());
-  
-    // uglify
-    if (log) {
-      console.log('\nCompressing ' + buildFile + ' using uglify-js');
-    }
+    // compress code
+    if (uglify) {
+      if (log) {
+        console.log('\nCompressing ' + buildFile + ' using uglify-js');
+      }
 
-    try {
-      var compressed = pro.gen_code(pro.ast_squeeze(pro.ast_mangle(jsp.parse(code))));
-    } catch (e) {
-    }
-    fs.writeFileSync(Forge.getBuildFile("min.js"), compressed);
+      fs.writeFileSync(Forge.getBuildFile("min.js"), Forge.compress(code));
+    }   
 
     if (log) {
       console.log('Compressed into ' + Forge.getBuildFile('min.js'));
     }
 
     // gzip
-    if (log) {
-      console.log('\nApplying gzip compression');
+    if (gzip) {
+/*
+      if (log) {
+        console.log('\nApplying gzip compression');
+      }
+
+      gzip(compressed, function (err, data) {
+        fs.writeFileSync(Forge.getBuildFile("js.gz"), data);
+      });
+*/
     }
 
-    gzip(compressed, function (err, data) {
-      fs.writeFileSync(Forge.getBuildFile("js.gz"), data);
-    });
   });
 
   if (log) {
