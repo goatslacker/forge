@@ -179,8 +179,8 @@ Forge.prototype = {
     try {
       parsed = jsp.parse(code);
       mangled = pro.ast_mangle(parsed);
-      squeeze = pro.ast_squeeze(mangled);
-      compressed = pro.gen_code(squeeze);
+      squeezed = pro.ast_squeeze(mangled);
+      compressed = pro.gen_code(squeezed);
     } catch (e) {
       // if there's any errors
     }
@@ -295,15 +295,18 @@ Forge.getBuildFile = function (ext) {
         // the code in all it's glory
         code = forger.forge(files[ext], ext);
 
-    // jshint
-    if (jshint) {
-      forger.jshint(code);
-    }
+    // only applies to JavaScript files
+    if (ext === "js") {
+      // jshint
+      if (jshint) {
+        forger.jshint(code);
+      }
 
-    // compress code
-    if (uglify) {
-      forger.compress(code);
-    }   
+      // compress code
+      if (uglify) {
+        forger.compress(code);
+      }
+    }
 
     // gzip
     if (gzip) {

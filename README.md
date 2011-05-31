@@ -1,6 +1,15 @@
-# forge - An easy to use CLI tool written in NodeJS useful for compiling JavaScript projects
+# forge
+
+An easy to use CLI tool written in NodeJS useful for compiling projects.
+
+I wrote this because I was sick of writing the same Jakefiles over and over again for building my projects.
+Now I have a simple CLI tool, I can just cd into my project and run `forge` and have it do it's magic.
 
 ## Installing
+
+NPM
+
+    sudo npm install forge -g
 
 Unix/Linux
 
@@ -10,17 +19,17 @@ Unix/Linux
 
 ## How to use
 
-Automatically detects directories
+You can have forge automatically detect your build directory
 
     cd myproject
     forge
 
-You tell forge the directory
+If that fails, you can tell forge the directory. The use is --fileExtension directory
 
     cd myproject
     forge --js source
 
-Config file `forge.json`
+For convenience, you can set a config file `forge.json` in your project's root folder
 
     {
       "files": {
@@ -32,6 +41,8 @@ Config file `forge.json`
     forge
 
 ## Custom config
+
+Below are the default settings for forge. You can customize these and place them in your `forge.json` config file
 
     {
       /* the application's name */

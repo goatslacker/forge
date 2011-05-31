@@ -15,5 +15,5 @@ clean:
 	@true
 
 uninstall:
-	@rm -f /usr/local/bin/forge && \
+	@npm uninstall forge -g && \
 		echo 'forge uninstalled.'
