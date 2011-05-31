@@ -37,6 +37,8 @@ For convenience, you can set a config file `forge.json` in your project's root f
       }
     }
 
+Then just run `forge`, it'll automatically pick-up your `forge.json` config
+
     cd myproject
     forge
 
