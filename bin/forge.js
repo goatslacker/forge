@@ -3,8 +3,6 @@
 /**
   @author Josh Perez <josh@goatslacker.com>
   @version 1.0
-
-  @depends jshint, uglify, gzip, less
   */
 
 /**
@@ -38,6 +36,7 @@ const args = (function (argv) {
 
 // Requires
 const fs = require("fs");
+const colors = require("colors");
 
 /**
   Forge Settings
@@ -136,7 +135,7 @@ Forge.prototype = {
     var code = "";
 
     if (log) {
-      console.log('\nReading...');
+      console.log('\nReading...'.cyan);
     }
 
     ext = ext || 'js';
@@ -146,7 +145,7 @@ Forge.prototype = {
       var file = fileName + '.' + ext;
 
       if (log) {
-        console.log('> ./' + file);
+        console.log('> ./' + file.italic);
       }
 
       // read the contents of the files
@@ -157,7 +156,7 @@ Forge.prototype = {
     fs.writeFileSync(this.fileName, code);
 
     if (log) {
-      console.log('Wrote to: ./' + this.fileName);
+      console.log('Wrote to: ' + ('./' + this.fileName).green);
     }
 
     return code;
@@ -186,13 +185,13 @@ Forge.prototype = {
     }
 
     if (log) {
-      console.log('\nCompressing ./' + this.fileName + ' using uglify-js');
+      console.log('\nCompressing'.cyan + ' ./' + this.fileName.italic + ' using ' + 'uglify-js'.underline);
     }
 
     fs.writeFileSync(this.minFile, compressed);
 
     if (log) {
-      console.log('Compressed into ./' + this.minFile);
+      console.log('Compressed into ' + ('./' + this.minFile).green);
     }
   },
 
@@ -205,7 +204,7 @@ Forge.prototype = {
         self = this;
 
     if (log) {
-      console.log('\nValidating ./' + this.fileName + ' with jshint');
+      console.log('\nValidating'.cyan + ' ./' + this.fileName.italic + ' with ' + 'jshint'.underline);
     }
 
     // run jshint on the code
@@ -217,14 +216,14 @@ Forge.prototype = {
     // if there are no errors
     if (!data.errors) {
       if (log) {
-        console.log('Lint Free!');
+        console.log('Lint Free!'.green);
       }
 
       return;
     }
 
     if (log) {
-      console.log('\nErrors found in ' + this.fileName);
+      console.log('\n' + ('(' + data.errors.length + ') Errors found in ' + this.fileName + '!').red);
     }
 
     // output errors to console
@@ -241,7 +240,7 @@ Forge.prototype = {
     const log = (!config.quiet);
 
     if (log) {
-      console.log('\nApplying gzip compression');
+      console.log('\nApplying ' + 'gzip'.underline + ' compression');
     }
 
     var self = this,
@@ -315,7 +314,7 @@ Forge.getBuildFile = function (ext) {
   };
 
   if (log) {
-    console.log('Forging ' + config.appName);
+    console.log('Forging '.cyan + config.appName.red.bold);
   }
 
   // create build directory
@@ -330,6 +329,6 @@ Forge.getBuildFile = function (ext) {
 
   // Done :)
   if (log) {
-    console.log('\nDone!');
+    console.log('\nDone!'.green.bold);
   }
 }());
