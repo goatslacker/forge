@@ -2,7 +2,7 @@
 
 /**
   @author Josh Perez <josh@goatslacker.com>
-  @version 1.0
+  @version 1.0.3
   */
 
 /**
@@ -117,7 +117,7 @@ if (config.compress) {
 }
 
 if (config.gzip) {
-  gzip = requireModule("gzip")
+  gzip = requireModule("gzip");
 }
 
 if (config.less) {
@@ -172,7 +172,7 @@ Forge.prototype = {
 
     var parsed = "",
         mangled = "",
-        squeeze = "",
+        squeezed = "",
         compressed = "";
 
     try {
@@ -319,7 +319,7 @@ Forge.getBuildFile = function (ext) {
 
   // create build directory
   try {
-    fs.mkdirSync(config.buildDirectory, 0777);
+    fs.mkdirSync(config.buildDirectory, 777);
   } catch (e) {
     // may return a file exists error...
   }
