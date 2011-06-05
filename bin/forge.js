@@ -2,7 +2,7 @@
 
 /**
   @author Josh Perez <josh@goatslacker.com>
-  @version 1.0.3
+  @version 1.0.4
   */
 
 /**
@@ -319,7 +319,7 @@ Forge.getBuildFile = function (ext) {
 
   // create build directory
   try {
-    fs.mkdirSync(config.buildDirectory, 777);
+    fs.mkdirSync(config.buildDirectory, "0777");
   } catch (e) {
     // may return a file exists error...
   }
