@@ -1,13 +1,18 @@
 {
   "name": "forge",
   "author": "Josh Perez <josh@goatslacker.com>",
-  "version": "1.0.4",
-  "description": "An easy to use CLI tool for compiling projects",
+  "version": "2.0.0",
+  "description": "insert something here",
 
   "keywords": [
     "build",
     "compile",
-    "compress"
+    "compress",
+    "lint",
+    "minify",
+    "typed",
+    "maven",
+    "preprocessor"
   ],
 
   "repository": {
@@ -17,16 +22,10 @@
 
   "licenses": ["MIT"],
 
-  "dependencies": {
-    "jshint": "0.2.x", 
-    "uglify-js": "1.0.x",
-    "gzip": "0.1.x",
-    "colors": "0.5.x",
-    "less": "1.1.x"
-  },
+  "main": "forge.js",
 
-  "bin": { 
-    "forge": "./bin/forge.js"
+  "bin": {
+    "forge": "./bin/forge"
   },
 
   "engines": {
