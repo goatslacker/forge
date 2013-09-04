@@ -20,6 +20,11 @@
     "url": "https://github.com/goatslacker/forge.git"
   },
 
+  "dependency": {
+    "jshintify": "*",
+    "mangleify": "*"
+  }
+
   "licenses": ["MIT"],
 
   "main": "forge.js",
