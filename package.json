@@ -1,9 +1,8 @@
 {
   "name": "forge",
   "author": "Josh Perez <josh@goatslacker.com>",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "insert something here",
-
   "keywords": [
     "build",
     "compile",
@@ -14,25 +13,21 @@
     "maven",
     "preprocessor"
   ],
-
   "repository": {
     "type": "git",
     "url": "https://github.com/goatslacker/forge.git"
   },
-
   "dependency": {
     "jshintify": "*",
     "mangleify": "*"
   },
-
-  "licenses": ["MIT"],
-
+  "licenses": [
+    "MIT"
+  ],
   "main": "forge.js",
-
   "bin": {
     "forge": "./bin/forge"
   },
-
   "engines": {
     "node": ">= 0.4.0"
   }
