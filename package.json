@@ -17,9 +17,10 @@
     "type": "git",
     "url": "https://github.com/goatslacker/forge.git"
   },
-  "dependency": {
+  "dependencies": {
     "jshintify": "*",
-    "mangleify": "*"
+    "mangleify": "*",
+    "fu": "*"
   },
   "licenses": [
     "MIT"
