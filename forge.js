@@ -3,17 +3,10 @@ module.exports = forge
 
 var fu = require('fu')
 var fs = require('fs')
+var subarg = require('subarg')
 
 function isFile(file) {
   return fs.existsSync(file)
-}
-
-function requireTransform(name) {
-  try {
-    return require(name)
-  } catch (ex) {
-    return null
-  }
 }
 
 function transformFiles(transforms) {
@@ -38,16 +31,25 @@ function append(obj, prop, x) {
   return obj
 }
 
+function addTransformWithOptions(arg) {
+  var transform = require(arg._[0])
+  return function (file) {
+    return transform(file, arg)
+  }
+}
+
 function forge(args) {
+  var argv = subarg(args)
+
   var x = fu.foldl(function (obj, arg) {
-    try {
+    if (arg._) {
+      return append(obj, 'transforms', addTransformWithOptions(arg))
+    } else {
       return isFile(arg)
         ? append(obj, 'files', arg)
         : append(obj, 'transforms', require(arg))
-    } catch (ex) {
-      return obj
     }
-  }, args, { transforms: [], files: [] })
+  }, argv._, { transforms: [], files: [] })
 
   return x.files.length
     ? fu.map(transformFiles(x.transforms), x.files)

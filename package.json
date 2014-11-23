@@ -2,7 +2,7 @@
   "name": "forge",
   "author": "Josh Perez <josh@goatslacker.com>",
   "version": "2.2.0",
-  "description": "insert something here",
+  "description": "A no customization 'build' system",
   "keywords": [
     "build",
     "compile",
@@ -18,9 +18,11 @@
     "url": "https://github.com/goatslacker/forge.git"
   },
   "dependencies": {
+    "fu": "*",
     "jshintify": "*",
     "mangleify": "*",
-    "fu": "*"
+    "reactify": "*",
+    "subarg": "^1.0.0"
   },
   "licenses": [
     "MIT"
